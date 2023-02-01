@@ -16,16 +16,16 @@ const ProductSchema = new mongoose.Schema({
     required: true,
   },
   reviews: {
-    type: Number,
+    type: String,
   },
   stars: {
-    type: Number,
+    type: String,
   },
   link: {
     type: String,
     required: true,
   },
-  productID: {
+  id: {
     type: String,
     required: true,
   },

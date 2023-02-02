@@ -1,47 +1,31 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const { scrapeData } = require('./scraper'); // import your scraper module
-const Product = require('./models'); // import your Mongoose model
-const app = express();
+const { updateWebflowCMS } = require('./webflow');
+const cron = require('cron');
 
 
-mongoose.set('strictQuery', true);
-mongoose.connect("mongodb+srv://lapcom:Tdonya1410@cluster0.alllvvd.mongodb.net/?retryWrites=true&w=majority", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-console.log("connected to database");
-
-// Route for scraping data
-app.get('/scrape', async (req, res) => {
-  try {
-    const data = await scrapeData(); // run your scraper function
-    console.log(data)
-    for (let i = 0; i < data.length; i++) {
-        try {
-            const newProduct = new Product(data[i]);
-            await newProduct.save();
-            console.log("Data saved successfully to MongoDB");
-        } catch (error) {
-            console.error("Error saving data to MongoDB:", error);
-        }
-    }
-    res.send('Scraping complete!');
-  } catch (err) {
-    console.error(err);
-    res.send(err);
+const CMSCollcetionsMapping = [
+  {
+    Category: "laptops",
+    WebflowCollectionId: "63d2c43d3ab39dfce7c91f1e",
+    AmazonId: "3A16966427031",
   }
-});
+]
+const scrapeAndSync = async() => {
+  CMSCollcetionsMapping.map(async (collection) => {
+    const data = await scrapeData(collection.AmazonId); // run your scraper function
+    await updateWebflowCMS(data, collection.WebflowCollectionId);
+  })
+}
 
-app.get('/products', async (req, res) => {
-    try {
-        // get products from MongoDB
-        const products = await Product.find();
-        res.send(products);
-    } catch (error) {
-        console.error(error);
-    }
-})
+const devCron = "*/10 * * * *" // every 10 seconds
+const prodCron = "0 0 * * *" // every day at midnight
+const time = process.env.MODE === 'dev' ? devCron : prodCron
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+console.log('server mode', process.env.MODE)
+const job = new cron.CronJob("* * * * *", function() {
+  console.log('job started')
+  scrapeAndSync()
+}, null, true, 'America/Los_Angeles')
+
+job.start();

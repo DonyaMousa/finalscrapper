@@ -3,9 +3,9 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 const API_TOKEN = 'e668092e34004a7e86437769eb8f63e2';
-const MAX_PAGES =2;
+const MAX_PAGES = 2;
 
-async function scrapeData() {
+async function scrapeData(productsId) {
   try {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
@@ -16,7 +16,7 @@ async function scrapeData() {
     let products = [];
     for (let i = 0; i < MAX_PAGES; i++) {
       console.log(`Scraping page ${i + 1}...`);
-      await page.goto(`https://www.amazon.sa/s?rh=n%3A16966427031&fs=true&language=en&ref=lp_16966427031_sar&page=${i + 1}`);
+      await page.goto(`https://www.amazon.sa/s?rh=n%${productsId}&fs=true&language=en&ref=lp_16966427031_sar&page=${i + 1}`);
 
       const pageProducts = await page.evaluate(() => {
         const productElements = Array.from(document.querySelectorAll('.s-result-item'));
@@ -42,18 +42,11 @@ async function scrapeData() {
 
       products.push(...pageProducts);
     }
+    await browser.close()
     return filteredProducts = products.filter(product => product.title && product.price && product.image && product.link && product.id);
-    // const csvData = products.map(product => `"${product.title}","${product.price}","${product.image}","${product.link}","${product.reviews}","${product.stars}","${product.id}"\n`).join('');
-    // return csvData
-    // fs.writeFileSync('laptops.csv', 'title,price,image,link,reviews,stars,id\n' + csvData);
-
-    console.log(`Data saved in laptops.csv file.`);
-
-    await browser.close();
   } catch (error) {
     console.error(error);
   }
 }
 
 module.exports = { scrapeData }
-// scrapeData();

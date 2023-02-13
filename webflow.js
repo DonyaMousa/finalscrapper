@@ -9,6 +9,8 @@ let ids = {}
 
 // calls the endpoint to get JSON response
 async function updateWebflowCMS(products, collectionId) {
+    console.log(products.length, 'products to add to webflow cms')
+    console.log(collectionId, 'collection id')
     // calls Webdflow api to get collection items
     const collectionInfo = await api.items({collectionId: collectionId})
     //collects the item ids
@@ -31,10 +33,10 @@ async function updateWebflowCMS(products, collectionId) {
             '_draft': false,
             'currency': currency
         }
-        console.log('new product parsed', fields)
+        // console.log('new product parsed', fields)
         if (ids[product.id]) {
-            console.log('product already exists', product.id)
-            console.log('updating product', fields)
+            // console.log('product already exists', product.id)
+            // console.log('updating product', fields)
             // adds data to existing collection items
             await api.patchItem({
                 collectionId: collectionId,
@@ -43,7 +45,7 @@ async function updateWebflowCMS(products, collectionId) {
             });
             delete ids[product.id];
         } else {
-            console.log('creating new product', fields)
+            // console.log('creating new product', fields)
             // creates new items
             await api.createItem({
                 collectionId: collectionId,
@@ -51,10 +53,10 @@ async function updateWebflowCMS(products, collectionId) {
             })
         }
     })
-    console.log('products added', products.length)
-    console.log('publishing site', domain)
+    // console.log('products added', products.length)
+    // console.log('publishing site', domain)
     await api.publishSite({ siteId: siteId, domains: [domain] })
-    console.log('site published', domain)
+    // console.log('site published', domain)
 }
 
 module.exports = { updateWebflowCMS }

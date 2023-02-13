@@ -24,11 +24,11 @@ async function updateWebflowCMS(products, collectionId) {
             'name': product.title,
             // 'slug': product.title,
             'image': product.image,
-            'reviews': product.reviews,
+            'reviews-2': product.reviews,
             'price': formattedPrice,
             'productid': product.id,
             'link': product.link,
-            'stars': product.stars,
+            'rating': product.stars,
             '_archived': false,
             '_draft': false,
             'currency': currency

@@ -30,6 +30,8 @@
     "mongoose": "^6.9.0",
     "promise-queue": "^2.2.5",
     "puppeteer": "^19.6.3",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
     "webflow-api": "^1.2.2"
   }
 }

@@ -8,6 +8,11 @@ const CMSCollcetionsMapping = [
     Category: "laptops",
     WebflowCollectionId: "63d2c43d3ab39dfce7c91f1e",
     AmazonId: "3A16966427031",
+  },
+  {
+    Category: "Laptops-Details",
+    WebflowCollectionId: "63eaa5ab479414e3de34e454",
+    AmazonId: "3A16966427031",
   }
 ]
 const scrapeAndSync = async() => {

@@ -7,7 +7,7 @@ const { updateWebflowCMS, updateProductDetails } = require('./webflow');
 const { openProductLink } = require('./scrape-product');
 // const API_TOKEN = 'e668092e34004a7e86437769eb8f63e2';
 
-const reviewsMin = 400;
+const reviewsMin = 1;
 async function fetchData(id, collectionId, DetailsCollectionId) {
   let maxPages = {}
   while(typeof maxPages === 'object') {
@@ -23,9 +23,7 @@ async function scrapeProduct(productsId, maxPages, collectionId, DetailsCollecti
     const WebPage = await browser.newPage();
     let filteredProducts = []
     let products = []
-    for (let page = 0; page <= maxPages; page++) {
-      // delay to avoid rate limit
-      await new Promise(r => setTimeout(r, 1000));
+    for (let page = 100; page <= maxPages; page++) {
       console.log(`Scraping page ${page + 1}...`);
       await WebPage.goto(`https://www.amazon.sa/s?i=computers&bbn=16966427031&rh=n%${productsId}%2Cp_72%3A16641816031&s=review-rank&dc&fs=true&language=en&page=${page + 1}`);
       const pageProducts = await WebPage.evaluate(() => {
@@ -50,7 +48,7 @@ async function scrapeProduct(productsId, maxPages, collectionId, DetailsCollecti
           };
         });
       }); 
-      if(page % 20 === 0 && page !== 0) {
+      if(page % 5 === 0 && page !== 0) {
         const latestFilteredProducts = 
         products.filter(product => product.title && product.stars != null && product.price && product.image && product.link && product.id)
         .filter(product => product.reviews && !isNaN(Number(product.reviews.match(/\d+/))))
@@ -61,7 +59,7 @@ async function scrapeProduct(productsId, maxPages, collectionId, DetailsCollecti
         .filter(product => product.reviews > reviewsMin);
         // delay to avoid rate limit
         await updateWebflowCMS(filteredProducts, collectionId);
-        await new Promise(resolve => setTimeout(resolve, 10000));
+        // await new Promise(resolve => setTimeout(resolve, 10000));
         filteredProducts.push(...latestFilteredProducts)
         console.log(`Pushed ${filteredProducts.length} products to Webflow CMS`)
         products = []
@@ -77,15 +75,17 @@ async function scrapeProduct(productsId, maxPages, collectionId, DetailsCollecti
         await updateWebflowCMS(filteredProducts, collectionId);
         filteredProducts.push(...latestFilteredProducts)
         // delay to avoid rate limit
-        await new Promise(resolve => setTimeout(resolve, 10000));
+        // await new Promise(resolve => setTimeout(resolve, 10000));
 
         console.log(`Pushed ${filteredProducts.length} products to Webflow CMS`)
         products = []
       }
-      else products.push(...pageProducts)
+      else { 
+        products.push(...pageProducts) 
+        console.log(`Scraped ${products.length} products...`)
+      }
       // delay to avoid rate limit
-      await new Promise(resolve => setTimeout(resolve, 10000));
-      console.log(`Scraped ${filteredProducts.length} products...`)
+      // await new Promise(resolve => setTimeout(resolve, 10000));
     }
 
     // scrape product details
@@ -100,14 +100,14 @@ async function scrapeProduct(productsId, maxPages, collectionId, DetailsCollecti
       productDetails.title = product.title
       prodDetails.push(productDetails)
       // delay to avoid rate limit
-      await new Promise(resolve => setTimeout(resolve, 10000));
+      // await new Promise(resolve => setTimeout(resolve, 10000));
     }
 
     console.log('pushing products details', prodDetails)
     // Push all products to Webflow CMS
     await updateProductDetails(prodDetails, DetailsCollectionId);
     // delay to avoid rate limit
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    // await new Promise(resolve => setTimeout(resolve, 10000));
     await browser.close()    
   } catch (error) {
     console.error(error);

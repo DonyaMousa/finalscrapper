@@ -13,6 +13,8 @@ const CMSCollcetionsMapping = [
   }
 ];
 
+
+// jj
 ((async () => {
   const client = await clientPromise;
   const db = client.db();

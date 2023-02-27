@@ -10,8 +10,8 @@ let ids = {}
 // calls the endpoint to get JSON response
 async function updateWebflowCMS(products, collectionId,) {
     // delay to avoid rate limit
-    console.log(products.length, 'products to add to webflow cms')
-    console.log(collectionId, 'collection id')
+    // console.log(products.length, 'products to add to webflow cms')
+    // console.log(collectionId, 'collection id')
     // calls Webdflow api to get collection items
     const collectionInfo = await api.items({collectionId: collectionId})
     // const collectionInfo = await Webflow.get(`https://api.webflow.com/collections/${collectionId}/items`, {
@@ -21,7 +21,7 @@ async function updateWebflowCMS(products, collectionId,) {
     //collects the item ids
     // delay to avoid rate limit
     collectionInfo.map((item) => { ids[item.productid] = item._id})
-    console.log(ids)
+    // console.log(ids)
     products = products.map((product) => {
         let formattedPrice = Number(product.price.replace(/[^0-9.-]+/g,""))
         let currency = product.price.match(/([A-Z]{3})/g)[0]
@@ -41,7 +41,7 @@ async function updateWebflowCMS(products, collectionId,) {
         }
     })
     .filter(product => !ids[product.productid]);
-    console.log('products to be added', products.length)
+    // console.log('products to be added', products.length)
 
 
     // // console.log('new product parsed', fields)
@@ -50,7 +50,6 @@ async function updateWebflowCMS(products, collectionId,) {
     //     // console.log('updating product', fields)
     //     // adds data to existing collection items
     //     // delay to avoid rate limit
-    //     // setTimeout(async () => {
     //     //     await api.patchItem({
     //     //         collectionId: collectionId,
     //     //         itemId: ids[product.id],
@@ -84,15 +83,20 @@ async function updateWebflowCMS(products, collectionId,) {
 
 
 
+
+
+
+
+
 async function updateProductDetails(products, collectionId) {
     console.log(products.length, 'products to add to webflow cms')
-    console.log(collectionId, 'collection id')
+    // console.log(collectionId, 'collection id')
     // calls Webdflow api to get collection items
     const collectionInfo = await api.items({collectionId: collectionId})
     collectionInfo.map((item) => { ids[item.productid] = item._id})
     console.log(ids)
     products = products.map((product) => {
-        console.log(product)
+        // console.log(product)
         return {
             // required by webflow
             'name': product.title,
@@ -114,7 +118,6 @@ async function updateProductDetails(products, collectionId) {
     .filter (product => !ids[product.productid]);
     console.log('products to be added', products.length)
     products.map((product) => {
-        console.log(product)
         setTimeout(async () => {
             await api.createItem({
                 collectionId: collectionId,
@@ -122,8 +125,6 @@ async function updateProductDetails(products, collectionId) {
             })
         }, 600)
     })
-    console.log('products added', products.length)
-    console.log('publishing site', domain)
 
     // .filter(product => !ids[product.productid]);
     // products.map((product) => {

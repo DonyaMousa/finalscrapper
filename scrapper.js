@@ -7,7 +7,7 @@ const { updateWebflowCMS, updateProductDetails } = require('./webflow');
 const { openProductLink } = require('./scrape-product');
 // const API_TOKEN = 'e668092e34004a7e86437769eb8f63e2';
 
-const reviewsMin = 1;
+const reviewsMin = 400;
 async function fetchData(id, collectionId, DetailsCollectionId) {
   let maxPages = {}
   while(typeof maxPages === 'object') {
@@ -23,7 +23,7 @@ async function scrapeProduct(productsId, maxPages, collectionId, DetailsCollecti
     const WebPage = await browser.newPage();
     let filteredProducts = []
     let products = []
-    for (let page = 100; page <= maxPages; page++) {
+    for (let page = 80; page <= maxPages; page++) {
       console.log(`Scraping page ${page + 1}...`);
       await WebPage.goto(`https://www.amazon.sa/s?i=computers&bbn=16966427031&rh=n%${productsId}%2Cp_72%3A16641816031&s=review-rank&dc&fs=true&language=en&page=${page + 1}`);
       const pageProducts = await WebPage.evaluate(() => {
@@ -59,9 +59,8 @@ async function scrapeProduct(productsId, maxPages, collectionId, DetailsCollecti
         .filter(product => product.reviews > reviewsMin);
         // delay to avoid rate limit
         await updateWebflowCMS(filteredProducts, collectionId);
-        // await new Promise(resolve => setTimeout(resolve, 10000));
         filteredProducts.push(...latestFilteredProducts)
-        console.log(`Pushed ${filteredProducts.length} products to Webflow CMS`)
+        // console.log(`Pushed ${filteredProducts.length} products to Webflow CMS`)
         products = []
       } else if(page === maxPages - 1) {
         const latestFilteredProducts = 
@@ -75,40 +74,36 @@ async function scrapeProduct(productsId, maxPages, collectionId, DetailsCollecti
         await updateWebflowCMS(filteredProducts, collectionId);
         filteredProducts.push(...latestFilteredProducts)
         // delay to avoid rate limit
-        // await new Promise(resolve => setTimeout(resolve, 10000));
 
-        console.log(`Pushed ${filteredProducts.length} products to Webflow CMS`)
+        // console.log(`Pushed ${filteredProducts.length} products to Webflow CMS`)
         products = []
       }
       else { 
         products.push(...pageProducts) 
-        console.log(`Scraped ${products.length} products...`)
+        // console.log(`Scraped ${products.length} products...`)
       }
       // delay to avoid rate limit
-      // await new Promise(resolve => setTimeout(resolve, 10000));
     }
 
-    // scrape product details
 
     let prodDetails = []
     for (let i = 0; i < filteredProducts.length; i++) {
-      // delay to avoid rate limit
       const product = filteredProducts[i];
       console.log(`Scraping product ${i + 1}...`);
       const productDetails = await openProductLink(product.link, browser);
       productDetails.id = product.id
       productDetails.title = product.title
       prodDetails.push(productDetails)
-      // delay to avoid rate limit
-      // await new Promise(resolve => setTimeout(resolve, 10000));
+
     }
 
-    console.log('pushing products details', prodDetails)
     // Push all products to Webflow CMS
     await updateProductDetails(prodDetails, DetailsCollectionId);
     // delay to avoid rate limit
-    // await new Promise(resolve => setTimeout(resolve, 10000));
-    await browser.close()    
+    console.log(products.length, 'Had been add to webflowdetalis')
+    await browser.close() 
+    
+    
   } catch (error) {
     console.error(error);
   }

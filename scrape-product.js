@@ -9,12 +9,17 @@ async function openProductLink(link, browser) {
     try {
       // Open a new tab in the browser
       const page = await browser.newPage();
+      // Configure the navigation timeout
+      await page.setDefaultNavigationTimeout(0);
+      
       // Navigate to the product link
-      await page.goto(link);
-      // Scrape the desired information
+      await page.goto(link, {
+        waitUntil: 'load',
+        // Remove the timeout
+        timeout: 0
+      });
 
-// view-source:https://www.amazon.sa/-/en/Apple-MacBook-16-inch-10%E2%80%91core-16%E2%80%91core/dp/B09JR73TQH/ref=sr_1_1?qid=1676248493&refinements=p_72%3A16641816031&rnid=16641812031&s=electronics&sr=1-1
-
+      const title = await page.evaluate(() => document.querySelector('#productTitle')?.textContent || "Not patched.");
       const brand = await page.evaluate(() => document.querySelector('tr.po-brand > td.a-span9 > span.a-size-base')?.textContent || "Not patched.");
       const modelname = await page.evaluate(() => document.querySelector('tr.po-model_name > td.a-span9 > span.a-size-base')?.textContent || "Not patched.");
       const screensize = await page.evaluate(() => document.querySelector('tr.po-display\\.size > td.a-span9 > span.a-size-base')?.textContent || "Not patched.");
@@ -27,13 +32,7 @@ async function openProductLink(link, browser) {
       const cpu = await page.evaluate(() => document.querySelector('tr.po-cpu_model\\.speed > td.a-span9 > span.a-size-base')?.textContent || "Not patched.");
       // Return the scraped information
       console.log (brand, modelname, screensize, color, harddisk, cpumodel, installedRAM, operatingSystem, graphicsDescription, cpu);
-      //      </div>  </div> <div id="poToggleButton" class="a-expander-header a-expander-partial-collapse-header"><div class="a-expander-content-fade"></div><a href="javascript:void(0)" data-csa-c-func-deps="aui-da-a-expander-toggle" data-csa-c-type="widget" data-csa-interaction-events="click" aria-expanded="false" role="button" data-action="a-expander-toggle" class="a-declarative" data-a-expander-toggle="{&quot;allowLinkDefault&quot;:true, &quot;expand_prompt&quot;:&quot;See more&quot;, &quot;collapse_prompt&quot;:&quot;See less&quot;}"><i class="a-icon a-icon-extender-expand"></i><span class="a-expander-prompt">See more</span></a></div> </div> <script type='text/javascript'>
-      // check if see more button is present and click it if not skip it
-      // const seeMoreButton = await page.evaluate(() => document.querySelector('div.a-expander-header.a-expander-partial-collapse-header')?.textContent || undefined);
-      // console.log(seeMoreButton);
-      // if (seeMoreButton) {
-      //   await page.click('div.a-expander-header.a-expander-partial-collapse-header');
-      // }
+      
     
     await page.close();
       return { 

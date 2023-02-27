@@ -1,31 +1,53 @@
 const express = require('express');
-const { fetchData } = require('./scrapper'); // import your scraper module
-const cron = require('cron');
-
+const mongoose = require('mongoose');
+const app = express();
+const { fetchData, scrapeProductDetails } = require('./scrapper');
+const { openProductLink } = require('./scrape-product');
+const clientPromise = require('./mongo-client');
+const { ObjectId } = require('mongodb');
 
 const CMSCollcetionsMapping = [
   {
-    Category: "laptops",
-    WebflowCollectionId: "63d2c43d3ab39dfce7c91f1e",
+    Category: "Laptops",
     AmazonId: "3A16966427031",
-    DetailsCollectionId: "63ecfbe75808c00b31a303c9",
   }
-]
-const scrapeAndSync = async() => {
+];
+
+((async () => {
+  const client = await clientPromise;
+  const db = client.db();
+
   CMSCollcetionsMapping.map(async (collection) => {
-    const data = await fetchData(collection.AmazonId, collection.WebflowCollectionId, collection.DetailsCollectionId); // run your scraper function
+    let products = await fetchData(collection.AmazonId);
+
+    console.log(products.length, 'products to add to MongoDB')
+
+    const laptops = db.collection('Laptops');
+
+    await laptops.insertMany(products, { ordered: false })
+
+
   })
-}
-scrapeAndSync()
+}))(); 
 
-// const devCron = "*/10 * * * *" // every 10 seconds
-// const prodCron = "0 0 * * *" // every day at midnight
-// const time = process.env.MODE === 'dev' ? devCron : prodCron
+((async () => {
+  const client = await clientPromise;
+  const db = client.db();
 
-// console.log('server mode', process.env.MODE)
-// const job = new cron.CronJob("* * * * *", function() {
-//   console.log('job started')
-//   scrapeAndSync()
-// }, null, true, 'America/Los_Angeles')
+  CMSCollcetionsMapping.map(async (collection) => {
+    let productsdetails = await scrapeProductDetails(collection.AmazonId);
 
-// job.start();
+    console.log(productsdetails.length, 'products to add to MongoDB')
+
+    const laptopsdetails = db.collection('Laptopsdetails');
+
+    await laptopsdetails.insertMany(products, { ordered: false })
+
+
+  })
+}))(); 
+
+
+
+
+

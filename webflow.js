@@ -2,22 +2,10 @@ require('dotenv').config()
 const Webflow = require('webflow-api')
 require('isomorphic-fetch');
 
-
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 
 // make updateProductDetails function to store product details in mongodb
-
-
-
-
-
-
-
-
-
-
-
 // const api = new Webflow({ token: process.env.API_TOKEN,})
 // let domain = process.env.DOMAIN
 // let siteId = process.env.SITE_ID
@@ -132,9 +120,6 @@ async function updateProductDetails(products) {
 }
 
 module.exports = { updateProductDetails };
-
-
-
 
 // async function updateProductDetails(products, collectionId) {
 //     console.log(products.length, 'products to add to webflow cms')

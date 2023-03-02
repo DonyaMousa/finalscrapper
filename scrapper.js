@@ -52,8 +52,6 @@ async function scrapeProduct(productsId, maxPages) {
           };
         });
       }); 
-
-
       if(page % 5 === 0 && page !== 0) {
         const latestFilteredProducts = 
         products.filter(product => product.title && product.stars != null && product.price && product.image && product.link && product.id)
@@ -64,8 +62,6 @@ async function scrapeProduct(productsId, maxPages) {
         })
         .filter(product => product.reviews > reviewsMin);
         filteredProducts.push(...latestFilteredProducts)
-
-
         products = []
       } else if(page === maxPages - 1) {
         const latestFilteredProducts = 

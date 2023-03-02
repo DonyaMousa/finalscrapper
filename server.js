@@ -25,7 +25,7 @@ const CMSCollcetionsMapping = [
   const db = client.db();
 
   CMSCollcetionsMapping.map(async (collection) => { 
-    let products = await                                                                              (collection.AmazonId);
+    let products = await fetchData(collection.AmazonId);
     let productsDetails = await scrapeProductDetails(products);
     console.log(products.length, 'products to add to MongoDB');
     const laptops = db.collection(`${collection.ProductsCollection}`);

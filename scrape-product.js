@@ -18,8 +18,8 @@ async function openProductLink(link, browser) {
         // Remove the timeout
         timeout: 0
       });
-
-      const title = await page.evaluate(() => document.querySelector('#productTitle')?.textContent || "Not patched.");
+//  <div id="titleSection" class="a-section a-spacing-none"> <h1 id="title" class="a-size-large a-spacing-none"> <span id="productTitle" class="a-size-large product-title-word-break">        Apple 2022 MacBook Air laptop with M2 chip: 13.6-inch Liquid Retina display, 8GB RAM, 256GB SSD storage, 1080p FaceTime HD camera. Works with iPhone and iPad; Midnight; Arabic/English       </span>       </h1> <div id="expandTitleToggle" class="a-section a-spacing-none expand aok-hidden"></div>  </div>                                </div>
+      // const title = await page.ev    aluate(() => document.querySelector('div.a-section.a-spacing-none a-size-large product-title-word-break')?.textContent || "Not patched.");
       const brand = await page.evaluate(() => document.querySelector('tr.po-brand > td.a-span9 > span.a-size-base')?.textContent || "Not patched.");
       const modelname = await page.evaluate(() => document.querySelector('tr.po-model_name > td.a-span9 > span.a-size-base')?.textContent || "Not patched.");
       const screensize = await page.evaluate(() => document.querySelector('tr.po-display\\.size > td.a-span9 > span.a-size-base')?.textContent || "Not patched.");

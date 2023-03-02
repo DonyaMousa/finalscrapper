@@ -4,7 +4,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const { openProductLink } = require('./scrape-product');
 
-const reviewsMin = 500;
+const reviewsMin = 400;
 
 
 
@@ -24,11 +24,12 @@ async function scrapeProduct(productsId, maxPages) {
     const WebPage = await browser.newPage();
     let filteredProducts = []
     let products = []
-    for (let page = 0; page <= 5; page++) {
+    for (let page = 0; page <= maxPages ; page++) {
       // delay to avoid rate limit
       await new Promise(r => setTimeout(r, 1000));
       console.log(`Scraping page ${page + 1}...`);
       await WebPage.goto(`https://www.amazon.sa/s?i=computers&bbn=16966427031&rh=n%${productsId}%2Cp_72%3A16641816031&s=review-rank&dc&fs=true&language=en&page=${page + 1}`);
+    
       const pageProducts = await WebPage.evaluate(() => {
         const productElements = Array.from(document.querySelectorAll('.s-result-item'));
         return productElements.map(productElement => {
@@ -77,7 +78,7 @@ async function scrapeProduct(productsId, maxPages) {
         .filter(product => product.reviews > reviewsMin);
         filteredProducts.push(...latestFilteredProducts)
         products = []
-      }
+      }                                                                 
       products.push(...pageProducts)
     }
     // scrape product details
@@ -98,13 +99,21 @@ async function scrapeProduct(productsId, maxPages) {
 }
 
 const scrapeProductDetails = async (products) => {
+  if (!products || !Array.isArray(products)) {
+    throw new Error('Invalid or empty products array');
+  }
   const browser = await puppeteer.launch({ headless: true });
   let prodDetails = []
   for (let i = 0; i < products.length; i++) {
     const product = products[i];
     console.log(`Scraping product ${i + 1}...`);
-    const productDetails = await openProductLink(product.link, browser);
-    // ket product.id to productDetails.id to be able to update the product in the database with v.
+    let productDetails = await openProductLink(product.link, browser);
+    console.log('productDetails', productDetails);
+    prodDetails.push(productDetails)
+    // ket product.id to productDetails.id to be able to update the product in the database with v. 
+    productDetails.id = product.id
+    productDetails.title = product.title      
+      
    
   }
   return prodDetails

@@ -8,14 +8,16 @@ const { ObjectId } = require('mongodb');
 
 const CMSCollcetionsMapping = [
   {
-    ProductsCollection: "Laptops",
-    ProductsDetailsCollection: "LaptopsDetails",
-    AmazonId: "3A16966427031",
+    productsCollection: "Laptops",
+    productsDetailsCollection: "LaptopsDetails",
+    amazonId: "3A16966427031",
+    minReviews: 400
   },
   { 
-    ProductsCollection: "Mobiles",
-    ProductsDetailsCollection: "MobilesDetails",
-    AmazonId: "3A16966419031",
+    productsCollection: "Mobiles",
+    productsDetailsCollection: "MobilesDetails",
+    amazonId: "3A16966419031",
+    minReviews: 100
   }
 ];
                                                                                                                                     
@@ -25,20 +27,19 @@ const CMSCollcetionsMapping = [
   const db = client.db();
 
   CMSCollcetionsMapping.map(async (collection) => { 
-    let products = await fetchData(collection.AmazonId);
+    let products = await fetchData(collection.amazonId);
     let productsDetails = await scrapeProductDetails(products);
     console.log(products.length, 'products to add to MongoDB');
-    const laptops = db.collection(`${collection.ProductsCollection}`);
-    const Laptopsdetails = db.collection(`${collection.ProductsDetailsCollection}`);
+    const laptops = db.collection(`${collection.productsCollection}`);
+    const laptopsDetails = db.collection(`${collection.productsDetailsCollection}`);
 
     await laptops.insertMany(products, { ordered: false })
     console.log (productsDetails.length, 'products details array');
-    await Laptopsdetails.insertMany(productsDetails, { ordered: false })
-
-
-    await client.close(); 
+    await laptopsDetails.insertMany(productsDetails, { ordered: false })
 
   })
+
+  await client.close(); 
 }))(); 
 
 

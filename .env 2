@@ -1,0 +1,5 @@
+API_TOKEN = "0466437a7b81731b60815df065a454b2dad1d5c7b4775b07de89f4fc61c66308"
+SITE_ID = "63c80b946d78384fc6f7eff3"
+DOMAIN = "khaleds-fresh-site-85b056.webflow.io"
+MODE = "dev"
+MONGO_URL = "mongodb+srv://lapcom:KhKh--123@lapcom.g3zvjoz.mongodb.net/Amazon?retryWrites=true&w=majority"                                                                                                                                                                                                                                                                  

@@ -24,7 +24,7 @@ async function scrapeProduct(productsId, maxPages) {
     const WebPage = await browser.newPage();
     let filteredProducts = []
     let products = []
-    for (let page = 0; page <= maxPages ; page++) {
+    for (let page = 0; page <= 6 ; page++) {
       // delay to avoid rate limit
       await new Promise(r => setTimeout(r, 1000));
       console.log(`Scraping page ${page + 1}...`);

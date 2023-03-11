@@ -3,28 +3,27 @@ const fs = require('fs');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { openProductLink } = require('./scrape-product');
+const { ObjectId } = require('mongodb');
 
 const reviewsMin = 400;
 
-
-
-async function fetchData(id) {
+async function fetchData(id,store) {
   let maxPages = {};
   while (typeof maxPages === 'object') {
     maxPages = await getCategoryMaxPages(id);
     console.log('maxPages', maxPages);
-    return await scrapeProduct(id, Number(maxPages) - 1);
+    return await scrapeProduct(id, Number(maxPages) - 1, store);
   }
 }
 
 
-async function scrapeProduct(productsId, maxPages) {
+async function scrapeProduct(productsId, maxPages, store) {
   try {
     const browser = await puppeteer.launch({ headless: true });
     const WebPage = await browser.newPage();
     let filteredProducts = []
     let products = []
-    for (let page = 0; page <= 6 ; page++) {
+    for (let page = 0; page <= 10; page++) {
       // delay to avoid rate limit
       await new Promise(r => setTimeout(r, 1000));
       console.log(`Scraping page ${page + 1}...`);
@@ -58,6 +57,9 @@ async function scrapeProduct(productsId, maxPages) {
         .filter(product => product.reviews && !isNaN(Number(product.reviews.match(/\d+/))))
         .map(product => {
           product.reviews = Number(product.reviews.match(/\d+/))
+          product._id = `${store}_${product.id}`
+          product.productId = product.id
+          product.lastUpdated = new Date()
           return product
         })
         .filter(product => product.reviews > reviewsMin);
@@ -77,27 +79,16 @@ async function scrapeProduct(productsId, maxPages) {
       }                                                                 
       products.push(...pageProducts)
     }
-    // scrape product details
-
-    // let prodDetails = []
-    // for (let i = 0; i < filteredProducts.length; i++) {
-    //   const product = filteredProducts[i];
-    //   console.log(`Scraping product ${i + 1}...`);
-    //   const productDetails = await openProductLink(product.link, browser);
-    //   productDetails.id = product.id
-    //   productDetails.title = product.title
-    //   prodDetails.push(productDetails)
-    // }
     return filteredProducts
   } catch (error) {
     console.error(error);
   }
 }
 
-const scrapeProductDetails = async (products) => {
-  if (!products || !Array.isArray(products)) {
+const scrapeProductDetails = async (products, store) => {
+  if (!Array.isArray(products) || products.length === 0) {
     throw new Error('Invalid or empty products array');
-  }
+  }  
   const browser = await puppeteer.launch({ headless: true });
   let prodDetails = []
   for (let i = 0; i < products.length; i++) {
@@ -107,10 +98,11 @@ const scrapeProductDetails = async (products) => {
     console.log('productDetails', productDetails);
     prodDetails.push(productDetails)
     // ket product.id to productDetails.id to be able to update the product in the database with v. 
-    productDetails.id = product.id
+    delete prodDetails.id
+    productDetails.productId = product.id
     productDetails.title = product.title      
-      
-   
+    productDetails._id = `${store}_${product.id}`
+    productDetails.lastUpdated = new Date()
   }
   return prodDetails
 }

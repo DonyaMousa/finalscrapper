@@ -59,7 +59,7 @@ async function scrapeProduct(productsId, maxPages, store) {
           product.reviews = Number(product.reviews.match(/\d+/))
           product._id = `${store}_${product.id}`
           product.productId = product.id
-          product.lastUpdated = new Date()
+          product.lastUpdated = new Date.now()
           return product
         })
         .filter(product => product.reviews > reviewsMin);
@@ -102,7 +102,7 @@ const scrapeProductDetails = async (products, store) => {
     productDetails.productId = product.id
     productDetails.title = product.title      
     productDetails._id = `${store}_${product.id}`
-    productDetails.lastUpdated = new Date()
+    productDetails.lastUpdated = new Date.now()
   }
   return prodDetails
 }
